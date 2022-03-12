@@ -14,9 +14,20 @@
 #include <SDL_opengl.h>
 #endif
 
+#include "video.h"
+
 // Main code
 int main(int, char**)
 {
+    // TODO: remove clear screen
+    for (int y = 0; y < SCREEN_HEIGHT; y++)
+    {
+        for (int x = 0; x < SCREEN_WIDTH; x++)
+        {
+            screen_pixels[y][x] = 0xabcdefff;
+        }
+    }
+
     // Setup SDL
     // (Some versions of SDL before <2.0.10 appears to have performance/stalling issues on a minority of Windows systems,
     // depending on whether SDL_INIT_GAMECONTROLLER is enabled or disabled.. updating to latest version of SDL is recommended!)
@@ -59,6 +70,9 @@ int main(int, char**)
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
     SDL_GL_SetSwapInterval(1); // Enable vsync
+
+    // Create textures
+    glGenTextures(1, &screen_texture);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -156,6 +170,20 @@ int main(int, char**)
             ImGui::End();
         }
 
+        glBindTexture(GL_TEXTURE_2D, screen_texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, screen_pixels);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        // Screen
+        static int screen_scale = 3;
+        ImGui::Begin("Screen");
+        ImGui::SliderInt("Scale", &screen_scale, 1, 5);
+        ImVec2 screen_size = ImVec2((float) SCREEN_WIDTH * screen_scale, (float) SCREEN_HEIGHT * screen_scale);
+        ImGui::Image((void *) (intptr_t) screen_texture, screen_size);
+        ImGui::End();
+
         // Rendering
         ImGui::Render();
         glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
@@ -169,6 +197,8 @@ int main(int, char**)
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
+
+    glDeleteTextures(1, &screen_texture);
 
     SDL_GL_DeleteContext(gl_context);
     SDL_DestroyWindow(window);
