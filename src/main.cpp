@@ -14,19 +14,12 @@
 #include <SDL_opengl.h>
 #endif
 
-#include "video.h"
+#include "chip.h"
 
 // Main code
 int main(int, char**)
 {
-    // TODO: remove clear screen
-    for (int y = 0; y < SCREEN_HEIGHT; y++)
-    {
-        for (int x = 0; x < SCREEN_WIDTH; x++)
-        {
-            screen_pixels[y][x] = 0xabcdefff;
-        }
-    }
+    Chip8 core;
 
     // Setup SDL
     // (Some versions of SDL before <2.0.10 appears to have performance/stalling issues on a minority of Windows systems,
@@ -72,7 +65,7 @@ int main(int, char**)
     SDL_GL_SetSwapInterval(1); // Enable vsync
 
     // Create textures
-    glGenTextures(1, &screen_texture);
+    glGenTextures(1, &core.screen_texture);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -107,6 +100,7 @@ int main(int, char**)
     // Our state
     bool show_demo_window = true;
     bool show_another_window = false;
+    bool show_debugger_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
@@ -170,18 +164,46 @@ int main(int, char**)
             ImGui::End();
         }
 
-        glBindTexture(GL_TEXTURE_2D, screen_texture);
+        if (show_debugger_window)
+        {
+            ImGui::Begin("Debugger", &show_debugger_window);
+            if (ImGui::BeginTable("disassembly", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable)) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                ImGui::Text("Addr");
+                ImGui::TableNextColumn();
+                ImGui::Text("Instruction");
+                ImGui::TableNextColumn();
+                ImGui::Text("Disassembled");
+
+                uint16_t pc = 0;
+                for (int i = 0; i < 8; ++i) {
+                    uint16_t addr = pc + i;
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    ImGui::Text("0x%x", addr);
+                    ImGui::TableNextColumn();
+                    ImGui::Text("0x%x", core.mem[addr]);
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%s", core.disassemble(core.mem[addr]).c_str());
+                }
+                ImGui::EndTable();
+            }
+            ImGui::End();
+        }
+
+        glBindTexture(GL_TEXTURE_2D, core.screen_texture);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, screen_pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Chip8::SCREEN_WIDTH, Chip8::SCREEN_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, core.screen_pixels);
         glBindTexture(GL_TEXTURE_2D, 0);
 
         // Screen
         static int screen_scale = 3;
         ImGui::Begin("Screen");
         ImGui::SliderInt("Scale", &screen_scale, 1, 5);
-        ImVec2 screen_size = ImVec2((float) SCREEN_WIDTH * screen_scale, (float) SCREEN_HEIGHT * screen_scale);
-        ImGui::Image((void *) (intptr_t) screen_texture, screen_size);
+        ImVec2 screen_size = ImVec2((float) Chip8::SCREEN_WIDTH * screen_scale, (float) Chip8::SCREEN_HEIGHT * screen_scale);
+        ImGui::Image((void *) (intptr_t) core.screen_texture, screen_size);
         ImGui::End();
 
         // Rendering
@@ -198,7 +220,7 @@ int main(int, char**)
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
 
-    glDeleteTextures(1, &screen_texture);
+    glDeleteTextures(1, &core.screen_texture);
 
     SDL_GL_DeleteContext(gl_context);
     SDL_DestroyWindow(window);
