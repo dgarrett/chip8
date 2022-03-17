@@ -14,6 +14,8 @@
 #include <SDL_opengl.h>
 #endif
 
+#include <fmt/core.h>
+
 #include "chip.h"
 
 // Main code

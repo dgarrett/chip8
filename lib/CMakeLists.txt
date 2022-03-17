@@ -1,3 +1,5 @@
+add_subdirectory(fmt)
+
 add_library(imgui OBJECT
     imgui/imconfig.h
     imgui/imgui.cpp

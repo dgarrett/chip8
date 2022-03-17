@@ -6,4 +6,4 @@ add_executable(chip8
     video.cpp
 )
 
-target_link_libraries(chip8 PRIVATE imgui SDL2::SDL2 SDL2::SDL2main)
+target_link_libraries(chip8 PRIVATE imgui fmt::fmt SDL2::SDL2 SDL2::SDL2main)

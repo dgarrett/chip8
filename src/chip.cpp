@@ -1,6 +1,8 @@
 #include "chip.h"
 #include "util.h"
 
+#include <fmt/core.h>
+
 struct Dispatch {
     uint16_t instruction;
     uint16_t mask;
@@ -10,7 +12,7 @@ struct Dispatch {
 
 Dispatch dispatch_table[] = {
     {0x0000, 0xF000, [](uint16_t ins) {}, [](uint16_t ins)
-     { return std::string("Call"); }}};
+     { return fmt::format("Call {}", ins); }}};
 
 void Chip8::dispatch(uint16_t ins) {
     for (auto &entry: dispatch_table) {
