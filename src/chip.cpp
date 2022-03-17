@@ -24,7 +24,9 @@ struct Dispatch {
 
 Dispatch dispatch_table[] = {
     {0x0000, 0xF000, [](uint16_t ins) {}, [](uint16_t ins)
-     { return fmt::format("Call {}", ins); }}};
+     { return fmt::format("Call {}", ins); }},
+    {0x6000, 0xF000, [](uint16_t inst) {}, [](uint16_t ins)
+     { return fmt::format("movi v{:01X} {}", X(ins), NN(ins)); }}};
 
 void Chip8::dispatch(uint16_t ins) {
     for (auto &entry: dispatch_table) {
