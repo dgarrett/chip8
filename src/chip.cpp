@@ -1,7 +1,19 @@
 #include "chip.h"
 #include "util.h"
 
+#include <iostream>
+#include <fstream>
 #include <fmt/core.h>
+
+void Chip8::load(std::string path)
+{
+    std::ifstream file(path.c_str(), std::ios::binary | std::ios::ate);
+    std::streamsize size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    // TODO: error handling
+    file.read(reinterpret_cast<char*>(&this->mem[0]), size);
+}
 
 struct Dispatch {
     uint16_t instruction;

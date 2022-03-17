@@ -17,11 +17,18 @@
 #include <fmt/core.h>
 
 #include "chip.h"
+#include "util.h"
 
 // Main code
-int main(int, char**)
+int main(int argc, char** argv)
 {
     Chip8 core;
+
+    if (argc == 2)
+    {
+        printf("Loading %s\n", argv[1]);
+        core.load(argv[1]);
+    }
 
     // Setup SDL
     // (Some versions of SDL before <2.0.10 appears to have performance/stalling issues on a minority of Windows systems,
@@ -181,13 +188,15 @@ int main(int, char**)
                 uint16_t pc = 0;
                 for (int i = 0; i < 8; ++i) {
                     uint16_t addr = pc + i;
+                    uint16_t value = swap(reinterpret_cast<uint16_t*>(core.mem)[addr]);
+                    // uint16_t value = core.mem[addr*2] << 8 | core.mem[addr*2+1];
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
                     ImGui::Text("0x%x", addr);
                     ImGui::TableNextColumn();
-                    ImGui::Text("0x%x", core.mem[addr]);
+                    ImGui::Text("0x%x", value);
                     ImGui::TableNextColumn();
-                    ImGui::Text("%s", core.disassemble(core.mem[addr]).c_str());
+                    ImGui::Text("%s", core.disassemble(value).c_str());
                 }
                 ImGui::EndTable();
             }

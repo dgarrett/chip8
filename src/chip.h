@@ -21,10 +21,12 @@ public:
     uint32_t screen_texture = 0;
     uint32_t screen_pixels[SCREEN_HEIGHT][SCREEN_WIDTH]{};
 
+    void load(std::string path);
+
     std::string disassemble(uint16_t);
     void dispatch(uint16_t);
 
-    uint16_t V[0x10]{};
+    uint8_t V[0x10]{};
     uint16_t I = 0;
     uint16_t stack[128]{};
     uint8_t mem[4096]{};
