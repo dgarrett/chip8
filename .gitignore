@@ -33,3 +33,5 @@
 
 # imgui
 imgui.ini
+
+build/
