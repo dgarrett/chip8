@@ -186,7 +186,7 @@ int main(int argc, char** argv)
                 ImGui::Text("Disassembled");
 
                 uint16_t pc = 0;
-                for (int i = 0; i < 8; ++i) {
+                for (int i = 0; i < 16; ++i) {
                     uint16_t addr = pc + i;
                     uint16_t value = swap(reinterpret_cast<uint16_t*>(core.mem)[addr]);
                     // uint16_t value = core.mem[addr*2] << 8 | core.mem[addr*2+1];

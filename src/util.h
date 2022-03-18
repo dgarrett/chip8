@@ -15,3 +15,7 @@ inline uint8_t NN(uint16_t ins) {
 inline uint8_t X(uint16_t ins) {
     return (ins & 0xf00) >> 8;
 }
+
+inline uint8_t Y(uint16_t ins) {
+    return (ins & 0xf0) >> 4;
+}
