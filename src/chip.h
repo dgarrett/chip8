@@ -28,6 +28,8 @@ public:
 
     uint8_t V[0x10]{};
     uint16_t I = 0;
+    uint16_t PC = 0;
+    uint16_t SP = 0;
     uint16_t stack[128]{};
     uint8_t mem[4096]{};
 };
