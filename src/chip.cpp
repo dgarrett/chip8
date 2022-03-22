@@ -32,9 +32,12 @@ Dispatch dispatch_table[] = {
         chip->SP = chip->PC;
         chip->SP++;
         chip->PC = NNN(ins); }, [](uint16_t ins) { return fmt::format("call {:03X}", NNN(ins)); }},
-    {0x3000, 0xF000, [](Chip8 *chip, uint16_t ins) {}, [](uint16_t ins) { return fmt::format("sei v{:01X} {}", X(ins), NN(ins)); }},
-    {0x4000, 0xF000, [](Chip8 *chip, uint16_t ins) {}, [](uint16_t ins) { return fmt::format("snei v{:01X} {}", X(ins), NN(ins)); }},
-    {0x5000, 0xF00F, [](Chip8 *chip, uint16_t ins) {}, [](uint16_t ins) { return fmt::format("ser v{:01X} v{:01X}", X(ins), Y(ins)); }},
+    {0x3000, 0xF000, [](Chip8 *chip, uint16_t ins) {
+        if (chip->V[X(ins)] == NN(ins)) chip->PC++; }, [](uint16_t ins) { return fmt::format("sei v{:01X} {}", X(ins), NN(ins)); }},
+    {0x4000, 0xF000, [](Chip8 *chip, uint16_t ins) {
+        if (chip->V[X(ins)] != NN(ins)) chip->PC++; }, [](uint16_t ins) { return fmt::format("snei v{:01X} {}", X(ins), NN(ins)); }},
+    {0x5000, 0xF00F, [](Chip8 *chip, uint16_t ins) {
+        if (chip->V[X(ins)] == chip->V[Y(ins)]) chip->PC++; }, [](uint16_t ins) { return fmt::format("ser v{:01X} v{:01X}", X(ins), Y(ins)); }},
     {0x6000, 0xF000, [](Chip8 *chip, uint16_t inst) {}, [](uint16_t ins) { return fmt::format("movi v{:01X} {}", X(ins), NN(ins)); }},
     {0x7000, 0xF000, [](Chip8 *chip, uint16_t inst) {}, [](uint16_t ins) { return fmt::format("addi v{:01X} {}", X(ins), NN(ins)); }},
     {0x8000, 0xF00F, [](Chip8 *chip, uint16_t inst) {}, [](uint16_t ins) { return fmt::format("movr v{:01X} v{:01X}", X(ins), Y(ins)); }},
