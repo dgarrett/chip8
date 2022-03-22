@@ -3,15 +3,11 @@
 #include <stdint.h>
 #include <string>
 
-class Chip8
-{
-public:
-    Chip8()
-    {
-        for (int y = 0; y < SCREEN_HEIGHT; y++)
-        {
-            for (int x = 0; x < SCREEN_WIDTH; x++)
-            {
+class Chip8 {
+  public:
+    Chip8() {
+        for (int y = 0; y < SCREEN_HEIGHT; y++) {
+            for (int x = 0; x < SCREEN_WIDTH; x++) {
                 screen_pixels[y][x] = 0xabcdefff;
             }
         }
